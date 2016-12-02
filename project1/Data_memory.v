@@ -1,0 +1,28 @@
+module Data_memory(
+clk_i,
+MemWrite_i,
+MemRead_i,
+addr_i,
+WriteData_i,
+ReadData_o);
+
+input   clk_i;
+input   MemWrite_i;
+input   MemRead_i;
+input   [31:0]  addr_i;
+input   [31:0]  WriteData_i;
+output  [31:0]  ReadData_o;
+
+reg [31:0]  mem  [0:255];
+
+always @(posedge clk) begin
+    if(MemWrite_i)
+        mem[addr_i] <= WriteData_i;
+end
+
+always @(posedge clk) begin
+    if(MemRead_i)
+        ReadData_o <= mem[addr_i];
+end
+
+endmodule
