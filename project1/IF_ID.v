@@ -20,7 +20,7 @@ initial begin
     instr_o = 32'b0;
 end
 
-always @(posedge clk) begin
+always @(posedge clk_i) begin
     if(IFFlush_i) begin
         pc4_o <= 32'b0;
         instr_o <= 32'b0;
