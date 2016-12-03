@@ -26,7 +26,7 @@ wire  [7:0] control_all;
 wire        branch, jump, mux8_select, PCWrite, IF_IDWrite, eq;
 wire [1:0]  control_WB_s2, control_MEM_s2;
 wire [3:0]  control_EX_s2;
-wire [31:0] pc_s2, seimm_s2, branch_addr, rs_data_s2, rt_data_s2;
+wire [31:0] pc_s2, seimm_s2, seimm_sl2, branch_addr, rs_data_s2, rt_data_s2;
 
 Control Control(
     .Op_i       (inst[31:26]), //
@@ -40,7 +40,7 @@ signExtend Sign_Extend(
     .data_out   (seimm_s2)
 );
 
-assign seimm_sl2 = {seimm[29:0], 2'b0}
+assign seimm_sl2 = {seimm_s2[29:0], 2'b0}
 Adder Adder(
     .a      (pc_s2), //
     .b      (seimm_sl2),
