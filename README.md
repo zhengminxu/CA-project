@@ -1,6 +1,6 @@
 # CA project1
 - deadline: 12/12, 24:00  (10 days left)
-- next meeting: next Tue after class
+- next meeting: next Wed after class
 
 ## Plan:
 2. connect wires: 4 days  # tue ddl
