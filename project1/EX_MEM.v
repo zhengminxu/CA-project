@@ -5,14 +5,14 @@ module EX_MEM(
 	input	alu_zero,
 	input	[31:0]	alu_result_in,
 	input	[31:0]	mux7_in,
-	input	[4:0]	mux8_in,
+	input	[4:0]	mux3_in,
 	output	reg	[1:0]	ctrl_wb_out,
 	output	reg		ctrl_m_mem_write, //size 1
 	output	reg		ctrl_m_mem_read, //size 1
 	output	reg	zero,
 	output	reg	[31:0]	alu_result_out,
 	output	reg	[31:0]	mux7_out,
-	output	reg [4:0]	mux8_out
+	output	reg [4:0]	mux3_out
 );
 
 initial begin
@@ -22,7 +22,7 @@ initial begin
 	zero 	<=	0;
 	alu_result_out	<=	0;
 	mux7_out	<=	0;
-	mux8_out	<=	0;
+	mux3_out	<=	0;
 end
 
 always	@	(posedge	clk)
@@ -33,6 +33,6 @@ always	@	(posedge	clk)
 		zero 	<=	0;
 		alu_result_out	<=	alu_result_in;
 		mux7_out	<=	mux7_in;
-		mux8_out	<=	mux8_in;
+		mux3_out	<=	mux3_in;
 	end
 endmodule

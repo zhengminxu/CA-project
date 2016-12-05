@@ -115,14 +115,80 @@ regr #(.N(20)) ID_EX_rsrtrd(
 
 ----------------------------
 //stage 3
+wire    zero, control_MEM_s4_write, control_MEM_s4_read;
+wire [1:0]  control_WB_s3, control_MEM_s3, forward_data1_o, forward_data2_o;
+wire [1:0]  control_WB_s4, control_WB_s5;
+wire [3:0]  control_EX_s3, alu_control_o, mux3_o, mux4_o, mux6_o, mux7_o, mux3_o_s4, mux7_o_s4;
+wire [31:0] seimm_s3, rs_data_s3, rt_data_s3,rs_addr_s3, rt_addr_s3, rt_addr_fw, rd_addr_s3, alu_data_o;
+wire [31:0] alu_result_o_s4, mux5_o_s5, mux3_o_s5;
 
-ALU
+mux2 mux3(
+    .select     (control_EX_s3[0]),//RegDst
+    .data1_i    (rt_addr_s3),
+    .data2_i    (rd_addr_s3),
+    .data_o     (mux3_o)
+    );
+mux2 mux4(
+    .select     (control_EX_s3[3]),//ALUSrc
+    .data1_i    (mux7_o),
+    .data2_i    (seimm_s3),
+    .data_o     (mux4_o)
+    );
+mux3 mux6(
+    .select     (forward_data1_o),
+    .data1_i    (alu_result_o_s4),
+    .data2_i    (mux5_o_s5),
+    .data3_i    (rs_data_s3),
+    .data_o     (mux6_o)
+    );
+mux3 mux7(
+    .select     (forward_data2_o),
+    .data1_i    (alu_result_o_s4),
+    .data2_i    (mux5_o_s5),
+    .data3_i    (rt_data_s3),
+    .data_o     (mux7_o)
+    );
 
-ALU_Control
+ALU ALU(
+    .ALUCtrl_i  (alu_control_o),
+    .data1_i    (rs_data_s3),
+    .data2_i    (mux4_o),
+    .data_o     (alu_data_o)
+);
 
-forwording
+ALU_Control ALU_Control(
+    .funct_i    (seimm_s3[5:0]),
+    .ALUOp_i    (control_EX_s3[2:1]),//ALUOp
+    .ALUCtrl_o  (alu_control_o)
+);
 
-EX/MEM
+forwardingUnit forwordingUnit(
+    .rs     (rs_addr_s3),
+    .rt     (rt_addr_fw),
+    .mux3_out   (mux3_o_s4),
+    .ex_mem_wb_out  (control_WB_s4),
+    .mem_write_reg  (mux3_o_s5),
+    .mem_wb_wb  (control_WB_s5),
+    .forward_a_select   (forward_data1_o),
+    .forward_b_select   (forward_data2_o)
+    );
+
+EX_MEM EX_MEM(
+    clk     (clk_i),
+    .ctrl_wb_in (control_WB_s3),
+    .ctrl_m_in  (control_MEM_s3),
+    .alu_zero   (zero),
+    .alu_result_in  (alu_data_o),
+    .mux7_in    (mux7_o),
+    .mux3_in    (mux8_o),
+    .ctrl_wb_out    (control_WB_s4),
+    .ctrl_m_mem_write   (control_MEM_s4_write),
+    .ctrl_m_mem_read    (control_MEM_s4_read),
+    .zero   (zero),
+    .alu_result_out (alu_result_o_s4),
+    .mux7_out   (mux7_o_s4),
+    .mux3_out   (mux3_o_s4)
+    );
 ----------------------------
 //stage 4
 
