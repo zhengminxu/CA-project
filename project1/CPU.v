@@ -1,6 +1,6 @@
 module CPU
 (
-    clk_i, 
+    clk_i,
     start_i
 );
 
@@ -11,13 +11,54 @@ input               start_i;
 
 ---------------------------
 //stage 1
-PC
+wire    [31:0]  mux2_out, pc_out, instr_out, pc4, mux1_out;
+wire            flush_in, beq;
 
-Instruction_Memory
+PC PC(
+    .clk_i(clk_i),
+    .PCWrite_i(PCWrite),
+    .pc_i(mux2_out),
+    .pc_o(pc_out),
+);
 
-IF/ID
+Add_PC Add_PC(
+    .pc_i(pc_out),
+    .pc_o(pc4)
+);
 
-flush
+//Not yet
+Instruction_Memory Instruction_Memory(
+    .addr_i(pc_out),
+    .instr_o(instr_out)
+);
+
+assign beq = branch & eq;
+assign flush_in = beq & jump;
+
+mux2 mux1(
+    .select(beq),
+    .data1_i(branch_addr),
+    .data2_i(pc4),
+    .data_o(mux1_out)
+);
+
+mux2 mux2(
+    .select(jump),
+    .data1_i(jump_addr),
+    .data2_i(mux1_out),
+    .data_o(mux2_out)        
+);
+
+IF_ID IF_ID(
+    .clk_i(clk_i),
+    .pc4_i(pc4),
+    .instr_i(instr_out),
+    .IFIDWrite_i(IF_IDWrite),
+    .IFFlush_i(flush_in),
+    .pc4_o(pc_s2),
+    .instr_o(inst)
+);
+
 ----------------------------
 //stage 2
 wire [31:0] inst;
@@ -27,6 +68,10 @@ wire        branch, jump, mux8_select, PCWrite, IF_IDWrite, eq;
 wire [1:0]  control_WB_s2, control_MEM_s2;
 wire [3:0]  control_EX_s2;
 wire [31:0] pc_s2, seimm_s2, seimm_sl2, branch_addr, rs_data_s2, rt_data_s2;
+
+wire [25:0] instr26;
+wire [31:0] jump_addr;
+assign jump_addr = {mux1_out[31:28], instr26, 2'b0};
 
 Control Control(
     .Op_i       (inst[31:26]), //
@@ -40,7 +85,7 @@ signExtend Sign_Extend(
     .data_out   (seimm_s2)
 );
 
-assign seimm_sl2 = {seimm_s2[29:0], 2'b0}
+assign seimm_sl2 = {seimm_s2[29:0], 2'b0};
 Adder Adder(
     .a      (pc_s2), //
     .b      (seimm_sl2),
@@ -62,8 +107,8 @@ Registers Registers(
     .RTaddr_i   (inst[20:16]), //
     .RDaddr_i   (rd_addr), //
     .RDdata_i   (rd_data), //
-    .RegWrite_i (RegWrite_s3), //
-    .RSdata_o   (rs_data_s2), 
+    .RegWrite_i (RegWrite_s3), //where??control_WB_s5[1]
+    .RSdata_o   (rs_data_s2),
     .RTdata_o   (rt_data_s2)
 );
 
@@ -192,13 +237,39 @@ EX_MEM EX_MEM(
 ----------------------------
 //stage 4
 
-data memory
+wire [31:0]  mw_read_data_in, mw_read_data_out, alu_result_out;
+wire [4:0] write_reg_out;
+wire [1:0] ctrl_wb_out;
 
-MEM/WB
+Data_memory Data_memory(
+    .clk_i(clk_i),
+    .MemWrite_i(control_MEM_s4_write),
+    .MemRead_i(control_MEM_s4_read),
+    .addr_i(alu_result_o_s4),
+    .WriteData_i(alu_result_o_s4),
+    .ReadData_o(mw_read_data_in)
+);
+
+MEM_WB MEM_WB(
+    .clk(clk_i),
+    .ctrl_wb_in(control_WB_s4),
+    .read_data_in(mw_read_data_in),
+    .alu_result_in(alu_result_o_s4),
+    .write_reg_in(mux3_o_s4),
+    .mem_ctrl_wb(ctrl_wb_out);
+    .read_data(mw_read_data_out);
+    .mem_alu_result(alu_result_out);
+    .mem_write_reg(write_reg_out)
+);
+
 ----------------------------
 //stage 5
 
-mux
+mux2 mux5(
+    .select(control_WB_s5[0]),//MemtoReg
+    .data1_i(mw_read_data_out), 
+    .data2_i(alu_result_out),
+    .data_o(mux5_o_s5)
+    );
 
 endmodule
-
