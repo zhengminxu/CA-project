@@ -13,7 +13,7 @@ reg r, addi, lw, sw, beq, j;
 wire RegWrite, MemtoReg, MemRead, MemWrite, ALUSrc, RegDst;
 wire [1:0] ALUOp;
 
-initial begin
+always @(*) begin
     r = !Op_i[5] && !Op_i[4] && !Op_i[3] && !Op_i[2] && !Op_i[1] && !Op_i[0];
     addi = !Op_i[5] && !Op_i[4] && Op_i[3] && Op_i[2] && !Op_i[1] && !Op_i[0];
     lw = Op_i[5] && !Op_i[4] && !Op_i[3] && !Op_i[2] && Op_i[1] && Op_i[0];

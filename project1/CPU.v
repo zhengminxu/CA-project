@@ -26,7 +26,7 @@ Add_PC Add_PC(
     .pc_o(pc4)
 );
 
-//Not yet
+
 Instruction_Memory Instruction_Memory(
     .addr_i(pc_out),
     .instr_o(instr_out)
@@ -107,7 +107,7 @@ Registers Registers(
     .RTaddr_i   (inst[20:16]), //
     .RDaddr_i   (rd_addr), //
     .RDdata_i   (rd_data), //
-    .RegWrite_i (RegWrite_s3), //where??control_WB_s5[1]
+    .RegWrite_i (control_WB_s5[1]), //modified
     .RSdata_o   (rs_data_s2),
     .RTdata_o   (rt_data_s2)
 );
