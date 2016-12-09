@@ -4,5 +4,5 @@ module mux2(
 	input	select,
 	output	[31:0]	data_o
 	);
-assign	data_o = select ? data1_i, data2_i;
+assign	data_o = select ? data1_i : data2_i;
 endmodule

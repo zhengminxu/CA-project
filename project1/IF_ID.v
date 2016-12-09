@@ -12,8 +12,8 @@ input   [31:0]  pc4_i;
 input   [31:0]  instr_i;
 input   IFIDWrite_i;
 input   IFFlush_i;
-output  [31:0]  pc4_o;
-output  [31:0]  instr_o;
+output	reg  [31:0]  pc4_o;
+output	reg  [31:0]  instr_o;
 
 initial begin
     pc4_o = 32'b0;

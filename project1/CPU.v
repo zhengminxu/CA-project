@@ -9,16 +9,18 @@ input               clk_i;
 input               start_i;
 
 
----------------------------
+//---------------------------
 //stage 1
-wire    [31:0]  mux2_out, pc_out, instr_out, pc4, mux1_out;
-wire            flush_in, beq;
+wire    [31:0]  mux2_out, pc_out, instr_out, pc4, mux1_out, inst;
+wire    [31:0]  pc_s2, branch_addr, jump_addr;
+wire            PCWrite, IF_IDWrite;
+wire            flush_in, beq, branch, jump, eq;
 
 PC PC(
     .clk_i(clk_i),
     .PCWrite_i(PCWrite),
     .pc_i(mux2_out),
-    .pc_o(pc_out),
+    .pc_o(pc_out)
 );
 
 Add_PC Add_PC(
@@ -59,18 +61,20 @@ IF_ID IF_ID(
     .instr_o(inst)
 );
 
-----------------------------
+//----------------------------
 //stage 2
-wire [31:0] inst;
 
 wire  [7:0] control_all;
-wire        branch, jump, mux8_select, PCWrite, IF_IDWrite, eq;
-wire [1:0]  control_WB_s2, control_MEM_s2;
+wire        mux8_select;
+wire [1:0]  control_WB_s2, control_MEM_s2, control_WB_s5;
 wire [3:0]  control_EX_s2;
-wire [31:0] pc_s2, seimm_s2, seimm_sl2, branch_addr, rs_data_s2, rt_data_s2;
-
+wire [31:0] seimm_s2, seimm_sl2, rs_data_s2, rt_data_s2;
 wire [25:0] instr26;
-wire [31:0] jump_addr;
+
+wire [1:0]  control_WB_s3, control_MEM_s3;
+wire [3:0]  control_EX_s3;
+wire [31:0] seimm_s3, rs_data_s3, rt_data_s3,rs_addr_s3, rt_addr_s3, rt_addr_fw, rd_addr_s3;
+
 assign jump_addr = {mux1_out[31:28], instr26, 2'b0};
 
 Control Control(
@@ -122,7 +126,7 @@ HazardDetetion HazardDetetion(
     .mux8_o         (mux8_select)
 );
 
-Eq eq(
+Eq Eq(
     .data1_i     (rs_data_s2),
     .data2_i     (rt_data_s2),
     .eq_o        (eq)
@@ -158,13 +162,13 @@ regr #(.N(20)) ID_EX_rsrtrd(
     .out    ({rs_addr_s3, rt_addr_s3, rt_addr_fw, rd_addr_s3}) //
 );
 
-----------------------------
+//----------------------------
 //stage 3
 wire    zero, control_MEM_s4_write, control_MEM_s4_read;
-wire [1:0]  control_WB_s3, control_MEM_s3, forward_data1_o, forward_data2_o;
-wire [1:0]  control_WB_s4, control_WB_s5;
-wire [3:0]  control_EX_s3, alu_control_o, mux3_o, mux4_o, mux6_o, mux7_o, mux3_o_s4, mux7_o_s4;
-wire [31:0] seimm_s3, rs_data_s3, rt_data_s3,rs_addr_s3, rt_addr_s3, rt_addr_fw, rd_addr_s3, alu_data_o;
+wire [1:0]  forward_data1_o, forward_data2_o;
+wire [1:0]  control_WB_s4;
+wire [3:0]  alu_control_o, mux3_o, mux4_o, mux6_o, mux7_o, mux3_o_s4, mux7_o_s4;
+wire [31:0] alu_data_o;
 wire [31:0] alu_result_o_s4, mux5_o_s5, mux3_o_s5;
 
 mux2 mux3(
@@ -219,7 +223,7 @@ forwardingUnit forwordingUnit(
     );
 
 EX_MEM EX_MEM(
-    clk     (clk_i),
+    .clk     (clk_i),
     .ctrl_wb_in (control_WB_s3),
     .ctrl_m_in  (control_MEM_s3),
     .alu_zero   (zero),
@@ -234,7 +238,7 @@ EX_MEM EX_MEM(
     .mux7_out   (mux7_o_s4),
     .mux3_out   (mux3_o_s4)
     );
-----------------------------
+//----------------------------
 //stage 4
 
 wire [31:0]  mw_read_data_in, mw_read_data_out, alu_result_out;
@@ -256,13 +260,13 @@ MEM_WB MEM_WB(
     .read_data_in(mw_read_data_in),
     .alu_result_in(alu_result_o_s4),
     .write_reg_in(mux3_o_s4),
-    .mem_ctrl_wb(ctrl_wb_out);
-    .read_data(mw_read_data_out);
-    .mem_alu_result(alu_result_out);
+    .mem_ctrl_wb(ctrl_wb_out),
+    .read_data(mw_read_data_out),
+    .mem_alu_result(alu_result_out),
     .mem_write_reg(write_reg_out)
 );
 
-----------------------------
+//----------------------------
 //stage 5
 
 mux2 mux5(

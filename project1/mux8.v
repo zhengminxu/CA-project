@@ -9,8 +9,8 @@ control_EX
 
 input	[7:0]	control_i;
 input	select_i;
-output	[1:0]	control_WB, control_MEM;
-output	[3:0]	control_EX;
+output	reg	[1:0]	control_WB, control_MEM;
+output	reg	[3:0]	control_EX;
 
 
 always@(control_i)begin
