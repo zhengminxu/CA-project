@@ -2,7 +2,14 @@
 module mux2(
 	input	[31:0]	data1_i, data2_i,
 	input	select,
-	output	[31:0]	data_o
+	output reg  [31:0]	data_o
 	);
-assign	data_o = select ? data1_i, data2_i;
+
+
+always@(*)begin
+	if (select == 1'b1)
+		data_o = data1_i;
+	else
+		data_o = data2_i;
+end
 endmodule

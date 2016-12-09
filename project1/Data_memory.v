@@ -11,18 +11,18 @@ input   MemWrite_i;
 input   MemRead_i;
 input   [31:0]  addr_i;
 input   [31:0]  WriteData_i;
-output  [31:0]  ReadData_o;
+output reg  [31:0]  ReadData_o;
 
-reg [31:0]  mem  [0:255];
+reg [31:0]  memory  [0:255];
 
-always @(posedge clk) begin
+always @(posedge clk_i) begin
     if(MemWrite_i)
-        mem[addr_i] <= WriteData_i;
+        memory[addr_i] <= WriteData_i;
 end
 
-always @(posedge clk) begin
+always @(posedge clk_i) begin
     if(MemRead_i)
-        ReadData_o <= mem[addr_i];
+        ReadData_o <= memory[addr_i];
 end
 
 endmodule

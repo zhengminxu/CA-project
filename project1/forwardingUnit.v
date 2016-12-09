@@ -1,4 +1,5 @@
 module forwardingUnit(
+	input	rst_i,
 	//ID_EX
 	input	[4:0]	rs,
 	input	[4:0]	rt,
@@ -13,10 +14,12 @@ module forwardingUnit(
 	output	reg 	[1:0]	forward_b_select
 	);
 
-always	@	(*)	begin
-	forward_a_select	<=	2'b00;
-	forward_b_select	<=	2'b00;
-
+always	@	(negedge rst_i)	begin
+	if(~rst_i)begin
+		forward_a_select	<=	2'b00;
+		forward_b_select	<=	2'b00;
+	end
+	else begin
 	//EX
 	if(ex_mem_wb_out[1] &&
 		(mux3_out != 0) &&
@@ -51,6 +54,7 @@ always	@	(*)	begin
 	 	(mem_write_reg == rt))
 	begin
 		forward_b_select	<=	2'b01;
+	end
 	end
 end
 endmodule

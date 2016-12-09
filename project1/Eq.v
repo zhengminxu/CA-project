@@ -7,7 +7,7 @@ eq_o
 );
 
 input	[31:0]	data1_i, data2_i;
-output	eq_o;
+output reg	eq_o;
 
 always@(*)begin
 	if(data1_i == data2_i)
@@ -15,3 +15,4 @@ always@(*)begin
 	else
 		eq_o = 1'b0;
 end
+endmodule
