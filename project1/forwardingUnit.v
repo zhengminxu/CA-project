@@ -15,45 +15,29 @@ module forwardingUnit(
 
 always	@	(*)	begin
 
+	forward_a_select	=	2'b00;
+	forward_b_select	=	2'b00;
 	//EX
-	if(EX_MEM_RegWrite == 1'b1 &&
-		(EX_MEM_Rd != 0) &&
-		(EX_MEM_Rd == ID_EX_Rs))
+	if(EX_MEM_RegWrite == 1'b1 && (EX_MEM_Rd != 0) && (EX_MEM_Rd == ID_EX_Rs))
 	begin
 		forward_a_select	=	2'b10;
 	end
 
-	else if(EX_MEM_RegWrite == 1'b1 &&
-		(EX_MEM_Rd != 0) &&
-		(EX_MEM_Rd == ID_EX_Rt))
+	if(EX_MEM_RegWrite == 1'b1 && (EX_MEM_Rd != 0) && (EX_MEM_Rd == ID_EX_Rt))
 	begin
 		forward_b_select	=	2'b10;
 	end
 
+
 	//MEM
-	else if(MEM_WB_RegWrite == 1'b1&&
-	 	(MEM_WB_Rd != 0) && 
-	 	!(EX_MEM_RegWrite && 
-	 	(EX_MEM_Rd != 0) && 
-	 	(EX_MEM_Rd != ID_EX_Rs)) &&
-	 	(MEM_WB_Rd == ID_EX_Rs))
+	if(MEM_WB_RegWrite == 1'b1 && (MEM_WB_Rd != 0) && (EX_MEM_Rd != ID_EX_Rs) &&(MEM_WB_Rd == ID_EX_Rs))
 	begin
 		forward_a_select	=	2'b01;
 	end
 
-	else if(MEM_WB_RegWrite == 1'b1 &&
-	 	(MEM_WB_Rd != 0) && 
-	 	!(EX_MEM_RegWrite && 
-	 	(EX_MEM_Rd != 0) && 
-	 	(EX_MEM_Rd != ID_EX_Rt)) &&
-	 	(MEM_WB_Rd == ID_EX_Rt))
+	if(MEM_WB_RegWrite == 1'b1 &&(MEM_WB_Rd != 0) && (EX_MEM_Rd != ID_EX_Rt) &&(MEM_WB_Rd == ID_EX_Rt))
 	begin
 		forward_b_select	=	2'b01;
-	end
-
-	else begin
-		forward_a_select	=	2'b00;
-		forward_b_select	=	2'b00;
 	end
 
 end

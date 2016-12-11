@@ -55,7 +55,7 @@ Instruction_Memory Instruction_Memory(
 );
 
 assign beq = branch & equal;
-assign flush_in = beq & jump;
+assign flush_in = beq | jump;
 
 muxfor2 mux1(
     .select(beq),

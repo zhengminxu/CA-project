@@ -17,19 +17,18 @@ output reg [31:0]  instr_o;
 
 
 always @(posedge clk_i) begin
-
-    if(IFFlush_i) begin
+    pc4_o <= pc4_i;
+    instr_o <= instr_i;
+    
+    if(IFFlush_i == 1'b1) begin
         pc4_o <= 32'b0;
         instr_o <= 32'b0;
     end
-    else if(IFIDWrite_i == 1'b0) begin
+    if(IFIDWrite_i == 1'b0) begin
         pc4_o <= pc4_o;
         instr_o <= instr_o;
     end
-    else begin
-    	pc4_o <= pc4_i;
-        instr_o <= instr_i;
-    end
+    
     
 end
 

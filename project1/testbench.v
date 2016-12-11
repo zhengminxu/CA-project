@@ -71,8 +71,10 @@ always@(posedge Clk) begin
     
     $fdisplay(outfile, "mux1_select = %b, mux1_data_o = %b", CPU.mux1.select, CPU.mux1.data_o);
     $fdisplay(outfile, "mux2_select = %b, mux2_data_o = %b", CPU.mux2.select, CPU.mux2.data_o);
+    $fdisplay(outfile, "IF/ID.IFFlush_i = %d",CPU.IF_ID.IFFlush_i);
     $fdisplay(outfile, "----------------------------------------------");
     $fdisplay(outfile, "pc4 = %d, instr = %b", CPU.IF_ID.pc4_o, CPU.IF_ID.instr_o);
+    
     $fdisplay(outfile, "opcode = %b, control all = %b, jump = %b, branch = %b", CPU.Control.Op_i,CPU.Control.ConMux_o, CPU.Control.Jump_o, CPU.Control.Branch_o);
     $fdisplay(outfile, "HazardDetection: MemRead_i = %b,ID_EX_Rt_i = %b,IF_ID_Rs_i = %b,IF_ID_Rt_i = %b,PCWrite_o = %b,IF_IDWrite_o = %b,mux8_o = %b,Flush_o = %b", CPU.HazardDetection.MemRead_i,CPU.HazardDetection.ID_EX_Rt_i,CPU.HazardDetection.IF_ID_Rs_i,CPU.HazardDetection.IF_ID_Rt_i,CPU.HazardDetection.PCWrite_o,CPU.HazardDetection.IF_IDWrite_o,CPU.HazardDetection.mux8_o,CPU.HazardDetection.Flush_o);
     $fdisplay(outfile, "mux8_control_i = %b, select_i = %b", CPU.mux8.control_i,CPU.mux8.select_i);
