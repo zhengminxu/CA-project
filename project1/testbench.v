@@ -37,7 +37,7 @@ initial begin
     end
     
     // Load instructions into instruction memory
-    $readmemb("instruction.txt", CPU.Instruction_Memory.memory);
+    $readmemb("Fibonacci_instruction.txt", CPU.Instruction_Memory.memory);
     
     // Open output file
     outfile = $fopen("output.txt") | 1;
@@ -72,6 +72,7 @@ always@(posedge Clk) begin
     $fdisplay(outfile, "mux1_select = %b, mux1_data_o = %b", CPU.mux1.select, CPU.mux1.data_o);
     $fdisplay(outfile, "mux2_select = %b, mux2_data_o = %b", CPU.mux2.select, CPU.mux2.data_o);
     $fdisplay(outfile, "IF/ID.IFFlush_i = %d",CPU.IF_ID.IFFlush_i);
+    $fdisplay(outfile, "eq = %d",CPU.eq.eq_o);
     $fdisplay(outfile, "----------------------------------------------");
     $fdisplay(outfile, "pc4 = %d, instr = %b", CPU.IF_ID.pc4_o, CPU.IF_ID.instr_o);
     
