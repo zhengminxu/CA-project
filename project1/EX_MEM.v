@@ -13,14 +13,6 @@ module EX_MEM(
 	output	reg [4:0]	mux3_out
 );
 
-initial begin
-	ctrl_wb_out	<=	0;
-	ctrl_m_mem_write	<=	0;
-	ctrl_m_mem_read		<=	0;
-	alu_result_out	<=	0;
-	mux7_out	<=	0;
-	mux3_out	<=	0;
-end
 
 always	@	(posedge	clk)
 	begin

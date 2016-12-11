@@ -62,14 +62,53 @@ always@(posedge Clk) begin
 
     // put in your own signal to count stall and flush
     if(CPU.HazardDetection.mux8_o == 1 && CPU.Control.Jump_o == 0 && CPU.Control.Branch_o == 0)stall = stall + 1;
-    if(CPU.HazardDetection.Flush_o == 1)flush = flush + 1;  
+    if(CPU.HazardDetection.Flush_o == 1 || CPU.IF_ID.IFFlush_i == 1)flush = flush + 1;  
 
     // print PC
     $fdisplay(outfile, "cycle = %d, Start = %d, Stall = %d, Flush = %d\nPC = %d", counter, Start, stall, flush, CPU.PC.pc_o);
     $fdisplay(outfile, "inst = %b", CPU.Instruction_Memory.instr_o);
-    $fdisplay(outfile, "control = %b", CPU.Control.ConMux_o);
+
+    
+    $fdisplay(outfile, "mux1_select = %b, mux1_data_o = %b", CPU.mux1.select, CPU.mux1.data_o);
+    $fdisplay(outfile, "mux2_select = %b, mux2_data_o = %b", CPU.mux2.select, CPU.mux2.data_o);
+    $fdisplay(outfile, "----------------------------------------------");
     $fdisplay(outfile, "pc4 = %d, instr = %b", CPU.IF_ID.pc4_o, CPU.IF_ID.instr_o);
-    $fdisplay(outfile, "mux8 = %b", CPU.mux8.control_WB);
+    $fdisplay(outfile, "opcode = %b, control all = %b, jump = %b, branch = %b", CPU.Control.Op_i,CPU.Control.ConMux_o, CPU.Control.Jump_o, CPU.Control.Branch_o);
+    $fdisplay(outfile, "HazardDetection: MemRead_i = %b,ID_EX_Rt_i = %b,IF_ID_Rs_i = %b,IF_ID_Rt_i = %b,PCWrite_o = %b,IF_IDWrite_o = %b,mux8_o = %b,Flush_o = %b", CPU.HazardDetection.MemRead_i,CPU.HazardDetection.ID_EX_Rt_i,CPU.HazardDetection.IF_ID_Rs_i,CPU.HazardDetection.IF_ID_Rt_i,CPU.HazardDetection.PCWrite_o,CPU.HazardDetection.IF_IDWrite_o,CPU.HazardDetection.mux8_o,CPU.HazardDetection.Flush_o);
+    $fdisplay(outfile, "mux8_control_i = %b, select_i = %b", CPU.mux8.control_i,CPU.mux8.select_i);
+    $fdisplay(outfile, "WB = %b, MEM = %b, EX = %b", CPU.mux8.control_WB, CPU.mux8.control_MEM, CPU.mux8.control_EX);
+    $fdisplay(outfile, "control_WB = %b, control_MEM = %b, control_EX = %b", CPU.ID_EX.control_WB_s2,CPU.ID_EX.control_MEM_s2,CPU.ID_EX.control_EX_s2);
+
+    $fdisplay(outfile, "rsdata = %b, rtdata = %b", CPU.Registers.RSdata_o,CPU.Registers.RTdata_o);
+    $fdisplay(outfile, "rdaddr = %b, rddata = %b", CPU.Registers.RDaddr_i,CPU.Registers.RDdata_i);
+    $fdisplay(outfile, "seimm = %d", CPU.Sign_Extend.data_out);
+    $fdisplay(outfile, "----------------------------------------------");
+
+
+
+    $fdisplay(outfile, "rsdata = %d, rtdata = %d",CPU.ID_EX.rs_data_s3,CPU.ID_EX.rt_data_s3);
+    $fdisplay(outfile, "mux6_s = %b, mux7_s = %b, mux7_data3_i = %d, mux7_data_o = %d", CPU.mux6.select, CPU.mux7.select,  CPU.mux7.data3_i, CPU.mux7.data_o);
+    $fdisplay(outfile, "ForwardingUnit: ID_EX_Rs =%b,ID_EX_Rt = %b,EX_MEM_Rd = %b,EX_MEM_RegWrite= %b,MEM_WB_Rd = %b,MEM_WB_RegWrite= %b", CPU.forwordingUnit.ID_EX_Rs     ,CPU.forwordingUnit.ID_EX_Rt     ,CPU.forwordingUnit.EX_MEM_Rd    ,CPU.forwordingUnit.EX_MEM_RegWrite,CPU.forwordingUnit.MEM_WB_Rd,   CPU.forwordingUnit.MEM_WB_RegWrite);
+    $fdisplay(outfile, "ForwardingUnit: mux6_s = %b,mux7_s = %b", CPU.forwordingUnit.forward_a_select,CPU.forwordingUnit.forward_b_select);
+    $fdisplay(outfile, "control_MEM = %b, control_WB = %b, control_EX = %b", CPU.ID_EX.control_MEM_s3,CPU.ID_EX.control_WB_s3,CPU.ID_EX.control_EX_s3);
+    $fdisplay(outfile, "alu ctrl = %b", CPU.ALU.ALUCtrl_i);
+    $fdisplay(outfile, "ALU data1 = %b, ALU data2 = %b", CPU.ALU.data1_i, CPU.ALU.data2_i);
+    $fdisplay(outfile, "alu out = %b", CPU.ALU.data_o);
+    $fdisplay(outfile, "alu out = %b", CPU.EX_MEM.alu_result_out);
+    $fdisplay(outfile, "mux3_select = %b, mux3_data1 = %b, mux3_data2 = %b, mux3_out = %b,", CPU.mux3.select,CPU.mux3.data1_i, CPU.mux3.data2_i,CPU.mux3.data_o);
+
+    $fdisplay(outfile, "----------------------------------------------");
+    
+    $fdisplay(outfile, "EX/MEM: ctrl_WB = %b, memWrite = %b, memRead = %b, alu_result_out = %b, mux7_out = %b, mux3_out = %b",CPU.EX_MEM.ctrl_wb_out,CPU.EX_MEM.ctrl_m_mem_write,CPU.EX_MEM.ctrl_m_mem_read ,CPU.EX_MEM.alu_result_out,CPU.EX_MEM.mux7_out,CPU.EX_MEM.mux3_out);
+    $fdisplay(outfile, "EX/MEM.mux7out = %d", CPU.EX_MEM.mux7_out);
+    $fdisplay(outfile, "Data_Memory.addr_i = %b, Data_Memory.WriteData_i = %d, Data_Memory.ReadData_o = %d", CPU.Data_Memory.addr_i,CPU.Data_Memory.WriteData_i, CPU.Data_Memory.ReadData_o);
+    $fdisplay(outfile, "----------------------------------------------");
+    $fdisplay(outfile, "MEM_WB.write register addr = %b, MEM_WB.mem_ctrl_wb = %b", CPU.MEM_WB.mem_write_reg, CPU.MEM_WB.mem_ctrl_wb);
+    $fdisplay(outfile, "mux5_o = %b, mux5_s = %b", CPU.mux5.data_o, CPU.mux5.select);
+
+
+    
+
 
     // print Registers
     $fdisplay(outfile, "Registers");

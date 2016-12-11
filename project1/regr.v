@@ -6,6 +6,6 @@ module regr (
 parameter N = 1;
 
 always @(posedge clk)
-	out <= in;
+	out = in;
 
 endmodule

@@ -17,12 +17,11 @@ reg [31:0]  memory  [0:255];
 
 always @(posedge clk_i) begin
     if(MemWrite_i)
-        memory[addr_i] <= WriteData_i;
+        memory[addr_i] = WriteData_i;
 end
-
-always @(posedge clk_i) begin
+always @(negedge clk_i) begin
     if(MemRead_i)
-        ReadData_o <= memory[addr_i];
+        ReadData_o = memory[addr_i];
 end
 
 endmodule

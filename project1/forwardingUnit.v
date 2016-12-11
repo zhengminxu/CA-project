@@ -1,60 +1,60 @@
 module forwardingUnit(
-	input	rst_i,
 	//ID_EX
-	input	[4:0]	rs,
-	input	[4:0]	rt,
+	input	[4:0]	ID_EX_Rs,
+	input	[4:0]	ID_EX_Rt,
 	//EX_MEM
-	input	[4:0]	mux3_out,
-	input	[1:0]	ex_mem_wb_out,
-	input	[4:0]	mem_write_reg,
+	input	[4:0]	EX_MEM_Rd,
+	input	EX_MEM_RegWrite,
+	input	[4:0]	MEM_WB_Rd,
 	//MEM_WB
-	input	[1:0]	mem_wb_wb,
+	input	MEM_WB_RegWrite,
 
 	output	reg 	[1:0]	forward_a_select,
 	output	reg 	[1:0]	forward_b_select
 	);
 
-always	@	(negedge rst_i)	begin
-	if(~rst_i)begin
-		forward_a_select	<=	2'b00;
-		forward_b_select	<=	2'b00;
-	end
-	else begin
+always	@	(*)	begin
+
 	//EX
-	if(ex_mem_wb_out[1] &&
-		(mux3_out != 0) &&
-		(mux3_out == rs))
+	if(EX_MEM_RegWrite == 1'b1 &&
+		(EX_MEM_Rd != 0) &&
+		(EX_MEM_Rd == ID_EX_Rs))
 	begin
-		forward_a_select	<=	2'b10;
+		forward_a_select	=	2'b10;
 	end
 
-	if(ex_mem_wb_out[1] &&
-		(mux3_out != 0) &&
-		(mux3_out == rt))
+	else if(EX_MEM_RegWrite == 1'b1 &&
+		(EX_MEM_Rd != 0) &&
+		(EX_MEM_Rd == ID_EX_Rt))
 	begin
-		forward_b_select	<=	2'b10;
+		forward_b_select	=	2'b10;
 	end
 
 	//MEM
-	if(mem_wb_wb[1] &&
-	 	(mem_write_reg != 0) && 
-	 	!(ex_mem_wb_out[1] && 
-	 	(mux3_out != 0) && 
-	 	(mux3_out != rs)) &&
-	 	(mem_write_reg == rs))
+	else if(MEM_WB_RegWrite == 1'b1&&
+	 	(MEM_WB_Rd != 0) && 
+	 	!(EX_MEM_RegWrite && 
+	 	(EX_MEM_Rd != 0) && 
+	 	(EX_MEM_Rd != ID_EX_Rs)) &&
+	 	(MEM_WB_Rd == ID_EX_Rs))
 	begin
-		forward_a_select	<=	2'b01;
+		forward_a_select	=	2'b01;
 	end
 
-	if(mem_wb_wb[1] &&
-	 	(mem_write_reg != 0) && 
-	 	!(ex_mem_wb_out[1] && 
-	 	(mux3_out != 0) && 
-	 	(mux3_out != rt)) &&
-	 	(mem_write_reg == rt))
+	else if(MEM_WB_RegWrite == 1'b1 &&
+	 	(MEM_WB_Rd != 0) && 
+	 	!(EX_MEM_RegWrite && 
+	 	(EX_MEM_Rd != 0) && 
+	 	(EX_MEM_Rd != ID_EX_Rt)) &&
+	 	(MEM_WB_Rd == ID_EX_Rt))
 	begin
-		forward_b_select	<=	2'b01;
+		forward_b_select	=	2'b01;
 	end
+
+	else begin
+		forward_a_select	=	2'b00;
+		forward_b_select	=	2'b00;
 	end
+
 end
 endmodule

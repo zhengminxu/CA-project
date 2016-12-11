@@ -14,26 +14,26 @@ reg RegWrite, MemtoReg, MemRead, MemWrite, ALUSrc, RegDst;
 reg [1:0] ALUOp;
 
 always@(Op_i) begin
-	r = !Op_i[5] & !Op_i[4] & !Op_i[3] & !Op_i[2] & !Op_i[1] & !Op_i[0];
-	addi = !Op_i[5] & !Op_i[4] & Op_i[3] & Op_i[2] & !Op_i[1] & !Op_i[0];
-	lw = Op_i[5] & !Op_i[4] & !Op_i[3] & !Op_i[2] & Op_i[1] & Op_i[0];
-	sw = Op_i[5] & !Op_i[4] & Op_i[3] & !Op_i[2] & Op_i[1] & Op_i[0];
-	beq = !Op_i[5] & !Op_i[4] & !Op_i[3] & Op_i[2] & !Op_i[1] & !Op_i[0];
-	j = !Op_i[5] & !Op_i[4] & !Op_i[3] & !Op_i[2] & Op_i[1] & !Op_i[0];
+	r = ~Op_i[5] & ~Op_i[4] & ~Op_i[3] & ~Op_i[2] & ~Op_i[1] & ~Op_i[0];
+	addi = ~Op_i[5] & ~Op_i[4] & Op_i[3] & ~Op_i[2] & ~Op_i[1] & ~Op_i[0];
+	lw = Op_i[5] & ~Op_i[4] & ~Op_i[3] & ~Op_i[2] & Op_i[1] & Op_i[0];
+	sw = Op_i[5] & ~Op_i[4] & Op_i[3] & ~Op_i[2] & Op_i[1] & Op_i[0];
+	beq = ~Op_i[5] & ~Op_i[4] & ~Op_i[3] & Op_i[2] & ~Op_i[1] & ~Op_i[0];
+	j = ~Op_i[5] & ~Op_i[4] & ~Op_i[3] & ~Op_i[2] & Op_i[1] & ~Op_i[0];
 
 
-	RegWrite <= r | lw | addi;
-	MemtoReg <= lw;
-	MemRead <= lw;
-	MemWrite <= sw;
-	ALUSrc <= lw | sw | addi;
-	ALUOp <= {r, beq};
-	RegDst <= r;
+	RegWrite = r | lw | addi;
+	MemtoReg = lw;
+	MemRead = lw;
+	MemWrite = sw;
+	ALUSrc = lw | sw | addi;
+	ALUOp = {r, beq};
+	RegDst = r;
 
 
-	ConMux_o <= {RegWrite, MemtoReg, MemRead, MemWrite, ALUSrc, ALUOp, RegDst};
-	Branch_o <= beq;
-	Jump_o <= j;
+	ConMux_o = {RegWrite, MemtoReg, MemRead, MemWrite, ALUSrc, ALUOp, RegDst};
+	Branch_o = beq;
+	Jump_o = j;
 end
 
 endmodule

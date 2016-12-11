@@ -10,13 +10,6 @@ module MEM_WB(
 	output reg 	[4:0]	mem_write_reg
 );
 
-	initial
-		begin
-			mem_ctrl_wb <= 0;
-			read_data <= 0;
-			mem_alu_result <= 0;
-			mem_write_reg <=0;
-		end
 
 	always @ (posedge clk)
 		begin
