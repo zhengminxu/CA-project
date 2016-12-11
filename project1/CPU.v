@@ -218,6 +218,7 @@ ALU_Control ALU_Control(
 );
 
 forwardingUnit forwordingUnit(
+    .rst_i  (rst_i),
     .rs     (rs_addr_s3),
     .rt     (rt_addr_fw),
     .mux3_out   (mux3_o_s4),
