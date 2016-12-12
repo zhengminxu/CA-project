@@ -93,11 +93,15 @@
 ## 問題和解決
 （1）PC需要設定初始值為0
 - 在PC和testbench里加了一個input：reset。
+
 （2）前幾個instruction執行時，後面stage的一些signal還沒有有效值
 - 更改了相關control signal的條件語句，首先設0，遇到trigger條件再修改值。
+
 （3）Forwarding Unit的條件設置不夠準確
 - 修改了條件語句，首先把forwarding的signal都設0，遇到trigger再改成01或10。
+
 （4）PC能夠正常運作，但從 register中輸出的 read data1 & read data2 都會是 32‘h0。
+
 （5）在debug的時候發現設定各個reg跟wire的時候有些缺陷，只有考慮到1,0而忽略了x的可能，導致第一次跑的時候許多值都出不來，後來經過修改後才有所改善。
 
 
