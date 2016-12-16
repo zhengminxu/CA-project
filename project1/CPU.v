@@ -132,8 +132,7 @@ HazardDetection HazardDetection(
     .IF_ID_Rt_i     (inst[20:16]), //
     .PCWrite_o      (PCWrite),
     .IF_IDWrite_o   (IF_IDWrite),
-    .mux8_o         (mux8_select),
-    .Flush_o        (hazard_flush)
+    .mux8_o         (mux8_select)
 );
 
 Eq eq(

@@ -28,7 +28,7 @@ always	@	(*)	begin
 		forward_b_select	=	2'b10;
 	end
 
-
+/*
 	//MEM
 	if(MEM_WB_RegWrite == 1'b1 && (MEM_WB_Rd != 0) && (EX_MEM_Rd != ID_EX_Rs) &&(MEM_WB_Rd == ID_EX_Rs))
 	begin
@@ -36,6 +36,26 @@ always	@	(*)	begin
 	end
 
 	if(MEM_WB_RegWrite == 1'b1 &&(MEM_WB_Rd != 0) && (EX_MEM_Rd != ID_EX_Rt) &&(MEM_WB_Rd == ID_EX_Rt))
+	begin
+		forward_b_select	=	2'b01;
+	end
+*/
+	if(MEM_WB_RegWrite &&
+	 	(MEM_WB_Rd != 0) && 
+	 	!(EX_MEM_RegWrite && 
+	 	(EX_MEM_Rd != 0) && 
+	 	(EX_MEM_Rd != ID_EX_Rs)) &&
+	 	(MEM_WB_Rd == ID_EX_Rs))
+	begin
+		forward_a_select	=	2'b01;
+	end
+
+	if(MEM_WB_RegWrite &&
+	 	(MEM_WB_Rd != 0) && 
+	 	!(EX_MEM_RegWrite && 
+	 	(EX_MEM_Rd != 0) && 
+	 	(EX_MEM_Rd != ID_EX_Rt)) &&
+	 	(MEM_WB_Rd == ID_EX_Rt))
 	begin
 		forward_b_select	=	2'b01;
 	end

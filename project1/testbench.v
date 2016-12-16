@@ -20,6 +20,8 @@ initial begin
     counter = 0;
     stall = 0;
     flush = 0;
+    $dumpfile("mytest.vcd");
+    $dumpvars;
     
     // initialize instruction memory
     for(i=0; i<256; i=i+1) begin
@@ -57,12 +59,12 @@ initial begin
 end
   
 always@(posedge Clk) begin
-    if(counter == 30)    // stop after 30 cycles
+    if(counter == 70)    // stop after 30 cycles
         $stop;
 
     // put in your own signal to count stall and flush
     if(CPU.HazardDetection.mux8_o == 1 && CPU.Control.Jump_o == 0 && CPU.Control.Branch_o == 0)stall = stall + 1;
-    if(CPU.HazardDetection.Flush_o == 1 || CPU.IF_ID.IFFlush_i == 1)flush = flush + 1;  
+    if(CPU.IF_ID.IFFlush_i == 1)flush = flush + 1;  
 
     // print PC
     $fdisplay(outfile, "cycle = %d, Start = %d, Stall = %d, Flush = %d\nPC = %d", counter, Start, stall, flush, CPU.PC.pc_o);
@@ -77,7 +79,7 @@ always@(posedge Clk) begin
     $fdisplay(outfile, "pc4 = %d, instr = %b", CPU.IF_ID.pc4_o, CPU.IF_ID.instr_o);
     
     $fdisplay(outfile, "opcode = %b, control all = %b, jump = %b, branch = %b", CPU.Control.Op_i,CPU.Control.ConMux_o, CPU.Control.Jump_o, CPU.Control.Branch_o);
-    $fdisplay(outfile, "HazardDetection: MemRead_i = %b,ID_EX_Rt_i = %b,IF_ID_Rs_i = %b,IF_ID_Rt_i = %b,PCWrite_o = %b,IF_IDWrite_o = %b,mux8_o = %b,Flush_o = %b", CPU.HazardDetection.MemRead_i,CPU.HazardDetection.ID_EX_Rt_i,CPU.HazardDetection.IF_ID_Rs_i,CPU.HazardDetection.IF_ID_Rt_i,CPU.HazardDetection.PCWrite_o,CPU.HazardDetection.IF_IDWrite_o,CPU.HazardDetection.mux8_o,CPU.HazardDetection.Flush_o);
+    $fdisplay(outfile, "HazardDetection: MemRead_i = %b,ID_EX_Rt_i = %b,IF_ID_Rs_i = %b,IF_ID_Rt_i = %b,PCWrite_o = %b,IF_IDWrite_o = %b,mux8_o = %b", CPU.HazardDetection.MemRead_i,CPU.HazardDetection.ID_EX_Rt_i,CPU.HazardDetection.IF_ID_Rs_i,CPU.HazardDetection.IF_ID_Rt_i,CPU.HazardDetection.PCWrite_o,CPU.HazardDetection.IF_IDWrite_o,CPU.HazardDetection.mux8_o);
     $fdisplay(outfile, "mux8_control_i = %b, select_i = %b", CPU.mux8.control_i,CPU.mux8.select_i);
     $fdisplay(outfile, "WB = %b, MEM = %b, EX = %b", CPU.mux8.control_WB, CPU.mux8.control_MEM, CPU.mux8.control_EX);
     $fdisplay(outfile, "control_WB = %b, control_MEM = %b, control_EX = %b", CPU.ID_EX.control_WB_s2,CPU.ID_EX.control_MEM_s2,CPU.ID_EX.control_EX_s2);
