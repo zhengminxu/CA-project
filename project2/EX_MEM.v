@@ -1,5 +1,6 @@
 module EX_MEM(
 	input clk,
+	input mem_stall_i,
 	input	[1:0]	ctrl_wb_in,
 	input	[1:0]	ctrl_m_in,
 	input	[31:0]	alu_result_in,
@@ -14,8 +15,17 @@ module EX_MEM(
 );
 
 
-always	@	(posedge	clk)
-	begin
+always	@	(posedge	clk) begin
+	
+	if(mem_stall_i == 1'b1)begin
+		ctrl_wb_out	<=	ctrl_wb_out;
+		ctrl_m_mem_write	<=	ctrl_m_mem_write;
+		ctrl_m_mem_read		<=	ctrl_m_mem_read;
+		alu_result_out	<=	alu_result_out;
+		mux7_out	<=	mux7_out;
+		mux3_out	<=	mux3_out;
+	end
+	else begin
 		ctrl_wb_out	<=	ctrl_wb_in;
 		ctrl_m_mem_write	<=	ctrl_m_in[0];
 		ctrl_m_mem_read		<=	ctrl_m_in[1];
@@ -23,4 +33,5 @@ always	@	(posedge	clk)
 		mux7_out	<=	mux7_in;
 		mux3_out	<=	mux3_in;
 	end
+end
 endmodule

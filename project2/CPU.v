@@ -2,7 +2,14 @@ module CPU
 (
     clk_i,
     start_i,
-    rst_i
+    rst_i,
+
+    mem_data_i, 
+    mem_ack_i,  
+    mem_data_o, 
+    mem_addr_o,     
+    mem_enable_o, 
+    mem_write_o
 );
 
 // Ports
@@ -10,9 +17,15 @@ input               clk_i;
 input               start_i;
 input               rst_i;
 
+input   [256-1:0]   mem_data_i; 
+input               mem_ack_i;  
+output  [256-1:0]   mem_data_o; 
+output  [32-1:0]    mem_addr_o;     
+output              mem_enable_o; 
+output              mem_write_o; 
 
 
-//stage 1
+
 wire    [31:0]  mux2_out, pc_out, instr_out, pc4, mux1_out;
 wire            flush_in, beq;
 wire [31:0] inst;
@@ -34,13 +47,19 @@ wire [31:0] alu_result_o_s4, mux5_o_s5;
 wire [31:0]  mw_read_data_in, mw_read_data_out, alu_result_s5;
 wire [4:0] write_reg_out,rs_addr_s3, rt_addr_s3, rt_addr_fw, rd_addr_s3,mux3_o, mux3_o_s4;
 
+//for cache
+wire  mem_stall;
 
+
+//stage 1
 PC PC(
-    .clk_i(clk_i),
-    .rst_i(rst_i),
-    .PCWrite_i(PCWrite),
-    .pc_i(mux2_out),
-    .pc_o(pc_out)
+    .clk_i      (clk_i),
+    .rst_i      (rst_i),
+    .start_i    (start_i),
+    .stall_i    (mem_stall),
+    .pcEnable_i (PCWrite),
+    .pc_i       (mux2_out),
+    .pc_o       (pc_out)
 );
 
 Add_PC Add_PC(
@@ -74,6 +93,7 @@ muxfor2 mux2(
 IF_ID IF_ID(
     .clk_i(clk_i),
     .pc4_i(pc4),
+    .mem_stall_i(mem_stall),
     .instr_i(instr_out),
     .IFIDWrite_i(IF_IDWrite),
     .IFFlush_i(flush_in),
@@ -143,6 +163,7 @@ Eq eq(
 
 ID_EX ID_EX(
     .clk            (clk_i),
+    .mem_stall_i    (mem_stall),
     .control_WB_s2  (control_WB_s2 ),          
     .control_MEM_s2 (control_MEM_s2) ,   
     .control_EX_s2  (control_EX_s2 ) ,   
@@ -223,6 +244,7 @@ forwardingUnit forwordingUnit(
 
 EX_MEM EX_MEM(
     .clk     (clk_i),
+    .mem_stall_i(mem_stall),
     .ctrl_wb_in (control_WB_s3),
     .ctrl_m_in  (control_MEM_s3),
     .alu_result_in  (alu_data_o),
@@ -237,17 +259,46 @@ EX_MEM EX_MEM(
     );
 
 //stage 4
-Data_memory Data_Memory(
-    .clk_i(clk_i),
-    .MemWrite_i(control_MEM_s4_write),
-    .MemRead_i(control_MEM_s4_read),
-    .addr_i(alu_result_o_s4),
-    .WriteData_i(mux7_o_s4),
-    .ReadData_o(mw_read_data_in)
-);
 
+
+
+dcache_top dcache(
+    .clk_i      (clk_i), 
+    .rst_i      (rst_i),
+    
+    // to Data Memory interface     
+
+    .mem_data_i(mem_data_i), 
+    .mem_ack_i(mem_ack_i),  
+    .mem_data_o(mem_data_o), 
+    .mem_addr_o(mem_addr_o),    
+    .mem_enable_o(mem_enable_o), 
+    .mem_write_o(mem_write_o),
+    
+    // to CPU interface 
+    .p1_data_i      (mux7_o_s4), 
+    .p1_addr_i      (alu_result_o_s4), 
+    .p1_MemRead_i   (control_MEM_s4_read), 
+    .p1_MemWrite_i  (control_MEM_s4_write), 
+    .p1_data_o      (mw_read_data_in), 
+    .p1_stall_o     (mem_stall)
+
+);
+/*
+Data_Memory Data_Memory(
+    .clk_i      (clk_i),
+    .rst_i      (rst_i),
+    .addr_i     (mem_addr_o),
+    .data_i     (mem_data_o),
+    .enable_i   (mem_enable_o),
+    .write_i    (mem_write_o),
+    .ack_o      (mem_ack_i),
+    .data_o     (mem_data_i)
+);
+*/
 MEM_WB MEM_WB(
     .clk(clk_i),
+    .mem_stall_i(mem_stall),
     .ctrl_wb_in(control_WB_s4),
     .read_data_in(mw_read_data_in),
     .alu_result_in(alu_result_o_s4),
