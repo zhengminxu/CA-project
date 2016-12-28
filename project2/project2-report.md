@@ -11,11 +11,10 @@ Report
 # Implementation
 - dcache top
     + tag comparator
-        * todo
+        把 存在 sram中的 data 放入 hit_data中。判斷 sram & p1 的 tag是否相同，而且 sram現在是不是 valid，以上皆成立，hit。
     + write data & read data
-        * todo
-    + controller
-        * todo
+        read data:當 cache hit的時候，使用 p1_offset當作起始位置經位移與運算後，取得實際儲存位置中的資料
+        writw data:當 cache hit的時候，依照目前 offset位置，取得對應位置的資料。
 - connect dcache top to CPU
     + 把project1中連接到Data memory的線改成連接到cache。
     + 添加一條mem stall的線，從cache連接到PC, IF/ID, ID/EX, EX/MEM, MEM/WB，讓它們在cache miss的時候可以保持其中的值不變。
