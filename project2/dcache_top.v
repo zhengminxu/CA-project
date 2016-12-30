@@ -122,8 +122,13 @@ assign	hit 		= (sram_tag == p1_tag) & sram_valid;
 assign	r_hit_data	= sram_cache_data;
 
 // read data :  256-bit to 32-bit
-always@(p1_offset or r_hit_data) begin
-	p1_data = (hit) ? r_hit_data[(p1_offset>>2) * 32 + 31 -: 32] : 32'b0;
+always@(p1_offset or r_hit_data or hit) begin
+	//p1_data = (hit) ? r_hit_data[(p1_offset>>2) * 32 + 31 -: 32] : 32'b0;
+	p1_data = 32'b0;
+	if(hit) 
+		begin
+			p1_data = r_hit_data[(p1_offset>>2) * 32 + 31 -: 32];
+		end
 end
 
 
