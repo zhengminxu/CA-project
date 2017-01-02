@@ -35,3 +35,5 @@ Report
 # 問題及解決
 (1) 最初沒注意到testbench中已經把data memory單獨拿出來，沒有放在CPU中了，所以剛開始在CPU里重複寫了data memory的部分，出現了一些錯誤。
 解決：把data memory部分刪除。
+(2) 在我們原先的答案中，第 98個 cycle時 read data 會讀出 0123，但這時正確的應該是0000。
+解決：在 dcache_top.v 的 read data 中的 always加入 hit，使每次去重新檢查 p1_data_o的資料是正確的。
